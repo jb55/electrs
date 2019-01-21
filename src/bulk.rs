@@ -1,4 +1,4 @@
-use bitcoin::blockdata::block::Block;
+use bitcoin::blockdata::block::{Block, BlockHeader};
 use bitcoin::consensus::encode::{deserialize, Decodable};
 use bitcoin::util::hash::BitcoinHash;
 use bitcoin_hashes::sha256d::Hash as Sha256dHash;
@@ -124,6 +124,7 @@ pub fn parse_blocks(blob: Vec<u8>, magic: u32) -> Result<Vec<Block>> {
         match u32::consensus_decode(&mut cursor) {
             Ok(value) => {
                 if magic != value {
+                    trace!("bad magic @ {}", pos);
                     cursor
                         .seek(SeekFrom::Start(pos + 1))
                         .expect("failed to seek back");
@@ -149,6 +150,16 @@ pub fn parse_blocks(blob: Vec<u8>, magic: u32) -> Result<Vec<Block>> {
                     end - start,
                     err
                 );
+                let header_size = std::mem::size_of::<BlockHeader>();
+                if start + header_size <= end {
+                    let header: BlockHeader =
+                        deserialize(&blob[start..start + header_size]).expect("invalid header");
+                    error!(
+                        "header of {}: {:?}",
+                        header.bitcoin_hash().be_hex_string(),
+                        header
+                    );
+                }
                 cursor
                     .seek(SeekFrom::Start(pos + 1))
                     .expect("failed to seek back");

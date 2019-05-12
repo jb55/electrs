@@ -155,9 +155,7 @@ pub fn parse_blocks(blob: Vec<u8>, magic: u32) -> Result<Vec<Block>> {
                     let header: BlockHeader =
                         deserialize(&blob[start..start + header_size]).expect("invalid header");
                     error!(
-                        "header of {}: {:?}",
-                        header.bitcoin_hash().be_hex_string(),
-                        header
+                        "header of {}: {:?}", header.bitcoin_hash(), header
                     );
                 }
                 cursor

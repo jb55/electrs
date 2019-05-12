@@ -5,6 +5,7 @@
 
 { pkgs? import <nixos> { config = {}; },
   lib? pkgs.lib,
+  llvmPackages ? pkgs.llvmPackages,
   callPackage? pkgs.callPackage,
   stdenv? pkgs.stdenv,
   buildRustCrate? pkgs.buildRustCrate,
@@ -1258,6 +1259,11 @@ rec {
         version = "5.18.3";
         edition = "2015";
         sha256 = "1ldrcdgdw4yzf4gac5xlcn956llc1qrqpn46ph891y0b537683cb";
+
+        enableParallelBuilding = true;
+        buildInputs = [ pkgs.clang ];
+        LIBCLANG_PATH = "${llvmPackages.libclang}/lib";
+
         authors = [
           "Karl Hobley <karlhobley10@gmail.com>"
           "Arkadiy Paronyan <arkadiy@ethcore.io>"
@@ -1276,7 +1282,7 @@ rec {
         features = {
           "default" = [ "static" ];
         };
-        resolvedDefaultFeatures = [ "bzip2" "default" "lz4" "snappy" "static" "zlib" "zstd" ];
+        resolvedDefaultFeatures = [ "bzip2" "default" "lz4" "snappy" "static" "zlib" ];
       };
     "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)"
       = rec {
@@ -1896,7 +1902,7 @@ rec {
         };
         features = {
           "bzip2" = [ "librocksdb-sys/bzip2" ];
-          "default" = [ "snappy" "lz4" "zstd" "zlib" "bzip2" ];
+          "default" = [ "snappy" "zstd" "zlib" "bzip2" ];
           "lz4" = [ "librocksdb-sys/lz4" ];
           "snappy" = [ "librocksdb-sys/snappy" ];
           "zlib" = [ "librocksdb-sys/zlib" ];
